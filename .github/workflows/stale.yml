@@ -7,7 +7,7 @@ name: Mark stale issues and pull requests
 
 on:
   schedule:
-  - cron: '*/3 * * * *'
+  - cron: '*/1 * * * *'
 
 jobs:
   stale:
@@ -25,3 +25,13 @@ jobs:
         stale-pr-message: 'Stale pull request message'
         stale-issue-label: 'no-issue-activity'
         stale-pr-label: 'no-pr-activity'
+        
+    - name: Delete merged branch
+      uses: actions/checkout@v2
+      if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
+      with:
+        ref: ${{ github.event.pull_request.head.ref }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Fetch all branches
+      run: git fetch --prune --unshallow --no-tags
